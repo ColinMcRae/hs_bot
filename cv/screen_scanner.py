@@ -21,10 +21,10 @@ class ScreenScanner:
         screen = self.grab_screen()
         boxes = self.__scan_image(self.yolo, screen, SIZE, iou_threshold=IOU_THREASHOLD, score_threshold=SCORE_THRESHOLD)
 
-        image = draw_bbox(screen, boxes, CLASSES=CLASSES)
-        plt.figure(figsize=(30, 30))
-        plt.imshow(image)
-        plt.show()
+        # image = draw_bbox(screen, boxes, CLASSES=CLASSES)
+        # plt.figure(figsize=(30, 30))
+        # plt.imshow(image)
+        # plt.show()
 
         return boxes
 
