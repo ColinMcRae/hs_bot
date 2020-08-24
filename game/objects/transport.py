@@ -1,7 +1,7 @@
 class Transport:
     """
     statuses
-    # 0 -idle
+    # 0 - idle
     # 1 - flying
     # 2 - doxked
     # 3 - loaded
@@ -22,3 +22,8 @@ class Transport:
         self.visited = []
         self.hub = ''
         self.full = False
+
+    def send_to_dest(self, dest):
+        print(self.__hash__(), 'sending to', dest)
+        self.status = 1
+        self.destination = dest.name
