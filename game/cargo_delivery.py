@@ -1,4 +1,5 @@
 from game.config import WARP_PLANETS, HUBS
+import libs.utils as utils
 
 class CargoDelivery:
     def __init__(self, solarsystem):
@@ -8,24 +9,48 @@ class CargoDelivery:
         self.tradestations = solarsystem.tradestations
 
     def move_cargo_to_warp(self):
+        exit_condition = True
+        it = 100
 
-        while True:
+        while exit_condition:
+            it -= 1
+            if it < 0:
+                break
+
             for transport in self.transports:
                 if transport.status == 0:
-                    #find dest
-                    pass
+                    station = self.__find_full_tradestation()
+                    if station:
+                        transport.send_to_dest(station)
+                        continue
+
+                    planet = self.__find_full_external_planet()
+                    if planet:
+                        transport.send_to_dest(planet)
+                        continue
+                    else:
+                        transport.status = 4
 
                 if transport.status == 1:
-                    #check if docked
-                    pass
+                    if transport.is_docked():
+                        transport.status = 2
 
                 if transport.status == 2:
-                    #if docked - load or unload
-                    pass
+                    transport.unload()
+                    if transport.is_empty():
+                        #transport.reset_task()
+                        transport.load()
+                        transport.status = 3
+                    else:
+                        transport.destination.status = 3
+                        planet = self.__find_planet_for_unload(transport)
+                        if planet:
+                            transport.send_to_dest(planet)
 
                 if transport.status == 3:
-                    #send it to unload
-                    pass
+                    planet = self.__find_planet_for_unload(transport)
+                    if planet:
+                        transport.send_to_dest(planet)
 
                 if transport.status == 8:
                     # try to unload to hub
@@ -34,7 +59,12 @@ class CargoDelivery:
                 if transport.status == 9:
                     #find another planet to unload
                     pass
-            break
+
+            exit_condition = False
+            for transport in self.transports:
+                if transport.status != 4:
+                    exit_condition = True
+
 
     def sort_cargo(self):
         hub = self.__find_hub()
@@ -64,3 +94,14 @@ class CargoDelivery:
                 hub = planet
                 planet.status = 3
         return hub
+
+    def __find_planet_for_unload(self, transport):
+        min_dist = 2000
+        pl = None
+        for planet in self.planets:
+            #TODO - find transport current position
+            distance_to_planet = utils.distance(transport.button[0], planet.coords)
+            if planet.name in WARP_PLANETS and planet.status != 3 and distance_to_planet < min_dist:
+                pl = planet
+                min_dist = distance_to_planet
+        return pl

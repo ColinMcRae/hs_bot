@@ -6,6 +6,7 @@ from cv import ScreenScanner, TextReader
 from cv.config import CLASSES
 from controller import clicker
 import time
+import libs.utils as utils
 import numpy as np
 
 from matplotlib import pyplot as plt
@@ -62,6 +63,10 @@ class CVGameInterface:
 
         return planets
 
+    def send_transport(self, transport, dest):
+        clicker.leftclick(transport.button)
+        clicker.rightclick(dest.coords)
+
     def __get_planet_name(self, screen):
         if not self.planet_name_box:
             print('namebox not avaliable')
@@ -105,7 +110,7 @@ class CVGameInterface:
                     result[class_name] = []
                 idx = classes.index(class_name)
                 if int(box[5]) == idx:
-                    result[class_name].append(self.__get_coords(box))
+                    result[class_name].append(utils.get_coords(box))
 
         return result
 
@@ -166,7 +171,7 @@ class CVGameInterface:
         a = all_buttons[:3]
         avg_distance = 0
         for i in range(0, len(a) - 1):
-            avg_distance += self.__distance(a[i + 1], a[i])
+            avg_distance += utils.distance(a[i + 1], a[i])
 
         avg_distance = int(avg_distance / 2)
 
@@ -175,17 +180,8 @@ class CVGameInterface:
         group_btns = [all_buttons[0]]
         for i in range(1, len(all_buttons)):
             btn = all_buttons[i]
-            dist = self.__distance(btn, all_buttons[0])
+            dist = utils.distance(btn, all_buttons[0])
             if (avg_distance * i * 1.1) > dist > (avg_distance * i * 0.9):
                 group_btns.append(btn)
 
         self.transport_buttons = group_btns
-
-    def __distance(self, a, b):
-        distance = 0
-        for i in range(0, len(a)):
-            distance += np.linalg.norm(a[i] - b[i])
-        return distance
-
-    def __get_coords(self, box):
-        return [int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2)]

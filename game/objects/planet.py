@@ -9,7 +9,8 @@ class Planet:
         #0 - not empty
         #1 - busy (for full unload)
         #2 - empty (when there are not cargos fot other destinations)
-        #3 - hub loading
+        #3 - full
+        #7 - hub loading
         #8 - hub clear
         #9 - hub full
         self.status = 0
