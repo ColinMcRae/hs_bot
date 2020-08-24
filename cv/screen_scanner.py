@@ -18,8 +18,7 @@ class ScreenScanner:
         self.yolo.load_weights(WEIGHTS)
 
     def get_screen_boxes(self):
-        screen = pyautogui.screenshot()
-        screen = np.array(screen)
+        screen = self.grab_screen()
         boxes = self.__scan_image(self.yolo, screen, SIZE, iou_threshold=IOU_THREASHOLD, score_threshold=SCORE_THRESHOLD)
 
         image = draw_bbox(screen, boxes, CLASSES=CLASSES)
@@ -28,6 +27,12 @@ class ScreenScanner:
         plt.show()
 
         return boxes
+
+    @staticmethod
+    def grab_screen():
+        screen = pyautogui.screenshot()
+        screen = np.array(screen)
+        return screen
 
     def __scan_image(self, yolo, input_image, SIZE, iou_threshold=0.3, score_threshold=0.25):
         sectors = self.__crop_image(input_image)
