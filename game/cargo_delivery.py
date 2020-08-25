@@ -22,11 +22,14 @@ class CargoDelivery:
                     station = self.__find_full_tradestation()
                     if station:
                         transport.send_to_dest(station)
+                        station.status = 2
+                        print(station.__hash__(), 'set as busy')
                         continue
 
                     planet = self.__find_full_external_planet()
                     if planet:
                         transport.send_to_dest(planet)
+                        planet.status = 2
                         continue
                     else:
                         transport.status = 4
@@ -36,21 +39,16 @@ class CargoDelivery:
                         transport.status = 2
 
                 if transport.status == 2:
-                    transport.unload()
                     if transport.is_empty():
-                        #transport.reset_task()
-                        transport.load()
-                        transport.status = 3
+                        transport.load_all()
+                        transport.destination.status = 2
                     else:
-                        transport.destination.status = 3
-                        planet = self.__find_planet_for_unload(transport)
-                        if planet:
-                            transport.send_to_dest(planet)
+                        transport.unload()
+                        transport.destination.status = 3 #TODO remove
+                        self.__transport_redirect(transport)
 
                 if transport.status == 3:
-                    planet = self.__find_planet_for_unload(transport)
-                    if planet:
-                        transport.send_to_dest(planet)
+                    self.__transport_redirect(transport)
 
                 if transport.status == 8:
                     # try to unload to hub
@@ -100,8 +98,17 @@ class CargoDelivery:
         pl = None
         for planet in self.planets:
             #TODO - find transport current position
-            distance_to_planet = utils.distance(transport.button[0], planet.coords)
+            distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
             if planet.name in WARP_PLANETS and planet.status != 3 and distance_to_planet < min_dist:
                 pl = planet
                 min_dist = distance_to_planet
         return pl
+
+    #TODO - think about name
+    def __transport_redirect(self, transport):
+        if transport.is_empty():
+            transport.reset_task()
+        else:
+            planet = self.__find_planet_for_unload(transport)
+            if planet:
+                transport.send_to_dest(planet)

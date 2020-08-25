@@ -63,6 +63,7 @@ class CVGameInterface:
 
         return planets
 
+    # TODO
     def send_transport(self, transport, dest):
         clicker.leftclick(transport.button)
         clicker.rightclick(dest.coords)
@@ -157,8 +158,6 @@ class CVGameInterface:
 
         # extend frame a bit
         self.planet_name_box = (startX - 5, startY - 5, endX + 5, endY + 50)
-
-
 
     def __find_transport_buttons(self, objects):
         if not objects['transportcontrol']:

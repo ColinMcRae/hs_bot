@@ -15,10 +15,12 @@ class Transport:
         self.button = button,
         self.control = control_interface
         self.status = 0
-        self.destination = ''
+        self.destination = None
         self.visited = []
-        self.hub = ''
+        self.hub = None
         self.full = False
+        self.load = 0
+        self.capacity = 0
 
     def reset_task(self):
         self.status = 0
@@ -29,27 +31,35 @@ class Transport:
         print(self.__hash__(), 'reset')
 
     def send_to_dest(self, dest):
-        print(self.__hash__(), 'sending to', dest.name)
         self.status = 1
-        self.destination = dest.name
-
+        self.destination = dest
         # clicker.leftclick(self.button)
         # clicker.rightclick(dest.coords)
 
+        #DEBUG
+        print(self.__hash__(), 'sending to', dest.name)
+
     def unload(self):
-        print(self.__hash__(), 'unloading')
+        self.load = 0
+
+        # DEBUG
+        print(self.__hash__(), 'unloading at', self.destination.name)
 
         #control.unload
 
-    def load(self):
-        print(self.__hash__(), 'loading')
-        #control.load
+    def load_all(self):
+        self.status = 3
+        # control.load
+
+        # DEBUG
+        print(self.__hash__(), 'loading at', self.destination.name)
+        self.load = 24
 
     def is_docked(self):
         return True
 
     def is_full(self):
-        return True
+        return self.load == self.capacity
 
     def is_empty(self):
-        return True
+        return self.load == 0
