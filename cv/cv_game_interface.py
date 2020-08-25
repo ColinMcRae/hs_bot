@@ -10,10 +10,11 @@ import libs.utils as utils
 import numpy as np
 
 from matplotlib import pyplot as plt
+import _pickle as pickle
 
 class CVGameInterface:
     def __init__(self):
-        self.screenscanner = ScreenScanner()
+        self.screenscanner = '' #ScreenScanner()
         self.textreader = TextReader()
         #buttons coords
         self.loadplanet = [1081, 1113] #hardcoded yet
@@ -35,6 +36,12 @@ class CVGameInterface:
         pass
 
     def init_objects(self):
+        with open('objects.pkl', 'rb') as file:
+            objects = pickle.load(file)
+
+        return objects
+
+
         boxxes = self.screenscanner.get_screen_boxes()
         objects = self.__get_objects(boxxes, self.classes)
 
@@ -48,9 +55,16 @@ class CVGameInterface:
         if not self.transport_buttons:
             self.__find_transport_buttons(objects)
 
+        # with open('objects.pkl', 'wb') as file:
+        #     pickle.dump(objects, file)
+
         return objects
 
     def get_planets(self, coords):
+        with open('planets.pkl', 'rb') as file:
+            planets = pickle.load(file)
+        return planets
+
         #click every planet, and find it's name
         print('getting planets')
         planets = []
@@ -60,6 +74,11 @@ class CVGameInterface:
             screen = self.screenscanner.grab_screen()
             name = self.__get_planet_name(screen)
             planets.append({'name': name, 'coords': planet})
+
+        #############
+        with open('planets.pkl', 'wb') as file:
+            pickle.dump(planets, file)
+        #############
 
         return planets
 
