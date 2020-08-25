@@ -1,4 +1,3 @@
-# CV settings
 CLASSES = 'models/classes.txt'
 WEIGHTS = 'models/yolov3_hs_Tiny'
 SIZE = 416

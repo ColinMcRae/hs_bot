@@ -12,7 +12,7 @@ class Transport:
     # 9 - unloading
     """
     def __init__(self, button, control_interface):
-        self.button = button,
+        self.button = button
         self.control = control_interface
         self.status = 0
         self.destination = None
@@ -57,6 +57,8 @@ class Transport:
 
     def is_docked(self):
         return True
+
+        #return self.control.is_transport_docked(self)
 
     def is_full(self):
         return self.load == self.capacity

@@ -8,13 +8,14 @@ from controller import clicker
 import time
 import libs.utils as utils
 import numpy as np
+import re
 
 from matplotlib import pyplot as plt
 import _pickle as pickle
 
 class CVGameInterface:
     def __init__(self):
-        self.screenscanner = '' #ScreenScanner()
+        self.screenscanner = ScreenScanner()
         self.textreader = TextReader()
         #buttons coords
         self.loadplanet = [1081, 1113] #hardcoded yet
@@ -23,7 +24,8 @@ class CVGameInterface:
         #text coords
         self.planet_name_box = (1010, 759, 1032, 890) #HARDCODE/static val
         self.cargolist_box = []
-        self.transport_load = [] # coords of (0/24) caption
+        self.transport_capacity_box = [] # coords of (0/24) caption
+        self.planet_capacity_box = []
         self.planet_cargo_box = []
         self.transport_buttons = [] #we eill search it at every game start
 
@@ -41,9 +43,7 @@ class CVGameInterface:
 
         return objects
 
-
-        boxxes = self.screenscanner.get_screen_boxes()
-        objects = self.__get_objects(boxxes, self.classes)
+        objects = self.__get_objects()
 
         if not objects['tradestation']:
             print('no objects found')
@@ -81,6 +81,25 @@ class CVGameInterface:
         #############
 
         return planets
+
+    def is_transport_docked(self, transport):
+        clicker.leftclick(transport.button)
+        time.sleep(0.2)
+        objects = self.__get_objects()
+
+        return len(objects['loadplanet']) > 0
+
+    def transport_load(self, transport):
+        if not self.transport_capacity_box:
+            self.__find_capacity_box(transport.destination)
+
+        screen = ScreenScanner.grab_screen()
+
+        startX, startY, endX, endY = self.transport_capacity_box
+        loadbox = screen[startX:endX, startY:endY]
+        load = self.textreader.read_text(loadbox)
+        load = ''.join(re.findall('\d', load.split('/')[0]))
+        return int(load)
 
     # TODO
     def send_transport(self, transport, dest):
@@ -122,16 +141,19 @@ class CVGameInterface:
         print('!!!!!!failed to read name!!!!!')
         print(text)  ##########################
 
-    def __get_objects(self, boxes, classes):
+    def __get_objects(self):
+        boxxes = self.screenscanner.get_screen_boxes()
         result = {}
-        for box in boxes:
-            for class_name in classes:
+
+        for box in boxxes:
+            for class_name in self.classes:
                 if class_name not in result.keys():
                     result[class_name] = []
-                idx = classes.index(class_name)
+                idx = self.classes.index(class_name)
                 if int(box[5]) == idx:
                     result[class_name].append(utils.get_coords(box))
 
+        print(result)
         return result
 
     def __find_planet_namebox(self, objects):
@@ -144,8 +166,7 @@ class CVGameInterface:
             time.sleep(0.2)
             screen = self.screenscanner.grab_screen()
 
-            self.textreader.get_text_boxes(screen)
-            textboxes = self.textreader.textboxes
+            textboxes = self.textreader.get_text_boxes(screen)
             xmin, ymin = 0, 0
             planet_name_boxes = []
 
@@ -203,3 +224,13 @@ class CVGameInterface:
                 group_btns.append(btn)
 
         self.transport_buttons = group_btns
+
+    def __find_capacity_box(self, planet):
+        screen = self.screenscanner.grab_screen()
+        textboxes = self.textreader.get_text_boxes(screen)
+
+        for coords, text in textboxes:
+            if re.match("\(\d+/\d+\)", text):
+                self.transport_capacity_box = coords
+            if re.match("\d+/\d+", text):
+                self.planet_capacity_box = coords

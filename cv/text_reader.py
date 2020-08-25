@@ -27,6 +27,8 @@ class TextReader():
                 # ((startx, starty, endx, endy), name)
                 self.textboxes.append(((x, y, x + w, y + h), d['text'][i]))
 
+        return self.textboxes
+
     def read_text(self, image):
         # TODO - read with image_to_data
         config = ('-l eng --oem 3 --psm 1 --tessdata-dir "models/"')
