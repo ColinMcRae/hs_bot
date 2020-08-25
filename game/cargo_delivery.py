@@ -1,4 +1,4 @@
-from game.config import WARP_PLANETS, HUBS
+from game.config import WARP_PLANETS, HUBS, ARTIFACT_STORAGE
 import libs.utils as utils
 
 class CargoDelivery:
@@ -10,7 +10,7 @@ class CargoDelivery:
 
     def move_cargo_to_warp(self):
         exit_condition = True
-        it = 100
+        it = 300
 
         while exit_condition:
             it -= 1
@@ -31,8 +31,8 @@ class CargoDelivery:
                         transport.send_to_dest(planet)
                         planet.status = 2
                         continue
-                    else:
-                        transport.status = 4
+
+                    transport.status = 4
 
                 if transport.status == 1:
                     if transport.is_docked():
@@ -81,7 +81,9 @@ class CargoDelivery:
 
     def __find_full_external_planet(self):
         for planet in self.planets:
-            if planet.status == 0:
+            if planet.name in ARTIFACT_STORAGE:
+                continue
+            if planet.name not in WARP_PLANETS and planet.status == 0:
                 return planet
 
     def __find_hub(self):
@@ -97,6 +99,8 @@ class CargoDelivery:
         min_dist = 2000
         pl = None
         for planet in self.planets:
+            if planet.name in ARTIFACT_STORAGE:
+                continue
             #TODO - find transport current position
             distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
             if planet.name in WARP_PLANETS and planet.status != 3 and distance_to_planet < min_dist:
