@@ -160,7 +160,9 @@ class CVGameInterface:
             for coords, cargo in cargos:
                 if cargo in destinations:
                     print('loading to', cargo)
-                    clicker.leftclick(utils.get_coords(coords))
+                    point = utils.get_coords(coords)
+                    point[0] -= 50
+                    clicker.leftclick(point)
                     break
             if transport.is_full():
                 break
