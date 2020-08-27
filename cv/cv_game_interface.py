@@ -89,14 +89,15 @@ class CVGameInterface:
 
         return len(objects['loadplanet']) > 0
 
-    def transport_load(self, transport):
+    def transport_load(self):
         if not self.transport_capacity_box:
-            self.__find_capacity_box(transport.destination)
+            self.__find_capacity_box()
 
         screen = ScreenScanner.grab_screen()
 
         startX, startY, endX, endY = self.transport_capacity_box
-        loadbox = screen[startX:endX, startY:endY]
+        loadbox = screen[startY:endY, startX:endX]
+
         load = self.textreader.read_text(loadbox)
         load = ''.join(re.findall('\d', load.split('/')[0]))
         return int(load)
@@ -225,12 +226,14 @@ class CVGameInterface:
 
         self.transport_buttons = group_btns
 
-    def __find_capacity_box(self, planet):
+    def __find_capacity_box(self):
         screen = self.screenscanner.grab_screen()
         textboxes = self.textreader.get_text_boxes(screen)
 
         for coords, text in textboxes:
             if re.match("\(\d+/\d+\)", text):
-                self.transport_capacity_box = coords
+                startX, startY, endX, endY = coords
+                self.transport_capacity_box = (startX - 5, startY - 5, endX + 5, endY + 5)
             if re.match("\d+/\d+", text):
-                self.planet_capacity_box = coords
+                startX, startY, endX, endY = coords
+                self.planet_capacity_box = (startX - 5, startY - 5, endX + 5, endY + 5)

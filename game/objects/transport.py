@@ -50,9 +50,11 @@ class Transport:
     def load_all(self):
         self.status = 3
         # control.load
+        # self.load = self.control.transport_load()
 
         # DEBUG
         print(self.__hash__(), 'loading at', self.destination.name)
+        self.load = self.control.transport_load(self)
         self.load = 24
 
     def is_docked(self):
@@ -61,7 +63,9 @@ class Transport:
         #return self.control.is_transport_docked(self)
 
     def is_full(self):
+        #self.load = self.control.transport_load()
         return self.load == self.capacity
 
     def is_empty(self):
+        # self.load = self.control.transport_load()
         return self.load == 0
