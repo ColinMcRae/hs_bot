@@ -1,7 +1,3 @@
-PLANETS = ['Tsu', 'Brenwyn', 'Lulinda', 'Aktaj', 'Stian', 'Ludder', 'Holographis', 'Vilmmie',
-           'Hisa', 'Galatea', 'Capaneus', 'Liozy', 'Fruno', 'Stur', 'Rotha', 'STATION']
-WARP_PLANETS = ['Tsu', 'Aktaj', 'Ludder', 'Holographis', 'Vilmmie', 'Galatea', 'Liozy', 'Stur']
-
 from cv import ScreenScanner, TextReader
 from cv.config import CLASSES
 from controller import clicker
@@ -9,6 +5,8 @@ import time
 import libs.utils as utils
 import numpy as np
 import re
+
+from game.config import TRADE_STATIONS, PLANETS
 
 from matplotlib import pyplot as plt
 import _pickle as pickle
@@ -81,6 +79,9 @@ class CVGameInterface:
         #############
 
         return planets
+
+    def planet_cargos(self):
+        pass
 
     def is_transport_docked(self, transport):
         clicker.leftclick(transport.button)
@@ -237,3 +238,35 @@ class CVGameInterface:
             if re.match("\d+/\d+", text):
                 startX, startY, endX, endY = coords
                 self.planet_capacity_box = (startX - 5, startY - 5, endX + 5, endY + 5)
+
+    def find_cargolist_box(self):
+        objects = self.__get_objects()
+        # set bottom box border on load button
+        X1, Y1, X2, Y2 = 1200, 1900, 0, 0
+        if objects['loadall'] or objects['unloadall']:
+            Y2, X2 = objects['loadall'][0] or objects['unloadall'][0]
+        Y2 += 100
+
+        #TODO - fix double snapshot
+        screen = ScreenScanner.grab_screen()
+        textboxes = self.textreader.get_text_boxes(screen)
+        self.textreader.draw_result()
+
+        # hint - 6 scrolls to the same position
+
+        pl_boxes = []
+        for coords, text in textboxes:
+            if text in PLANETS or text in TRADE_STATIONS: pl_boxes.append(coords)
+
+        # find top side and left side from menu heading
+        for y1, x1, y2, x2 in pl_boxes:
+            if x2 < X1: X1 = x2
+            if y1 < Y1: Y1 = y1
+        Y1 -= 50  # shift left a bit
+
+        ##DEBUG###
+
+        plt.imshow(screen[X1:X2, Y1:Y2])
+        plt.show()
+
+        self.cargolist_box = [X1, X2, Y1, Y2]
