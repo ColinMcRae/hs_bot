@@ -85,14 +85,13 @@ class CVGameInterface:
     def planet_cargos(self):
         if not self.cargolist_box:
             self.__find_cargolist_box()
-        print(self.cargolist_box)
 
         screen = ScreenScanner.grab_screen()
         startX, startY, endX, endY = self.cargolist_box
 
         cargobox = copy.copy(screen[startX:endX, startY:endY])
         textboxes = self.textreader.get_text_boxes(cargobox)
-        self.textreader.draw_result()
+        # self.textreader.draw_result()
         cargoboxes = []
 
         output = copy.copy(screen)
@@ -104,9 +103,9 @@ class CVGameInterface:
                 x2 += startY
                 y1 += startX
                 y2 += startX
-                cargoboxes.append((text, (x1, y1, x2, y2)))
-                cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(output, text, (x1, y1 - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2)
+                cargoboxes.append(((x1, y1, x2, y2), text))
+                # cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                # cv2.putText(output, text, (x1, y1 - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2)
 
         # DEBUG SHOW
         # plt.figure(figsize=(24, 24))
@@ -134,6 +133,38 @@ class CVGameInterface:
         load = self.textreader.read_text(loadbox)
         load = ''.join(re.findall('\d', load.split('/')[0]))
         return int(load)
+
+    def load_for_hub(self, transport, destinations):
+        iters = 20
+        scr = 0
+        prev_boxes = []
+        while True:
+            iters -= 1
+            if iters < 0:
+                break
+            cargos = self.planet_cargos()
+
+            if cargos == prev_boxes:
+                if scr > 0:
+                    break
+
+                X1, Y1, X2, Y2 = self.cargolist_box
+                point = utils.get_coords([Y1, X1, Y2, X2])
+
+                clicker.scroll(point)
+                scr += 1
+            else:
+                scr = 0
+
+            prev_boxes = cargos
+            for coords, cargo in cargos:
+                if cargo in destinations:
+                    print('loading to', cargo)
+                    clicker.leftclick(utils.get_coords(coords))
+                    break
+            if transport.is_full():
+                break
+        print('loading finished')
 
     # TODO
     def send_transport(self, transport, dest):

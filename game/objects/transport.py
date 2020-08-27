@@ -20,7 +20,7 @@ class Transport:
         self.hub = None
         self.full = False
         self.load = 0
-        self.capacity = 0
+        self.capacity = 24
 
     def reset_task(self):
         self.status = 0
@@ -57,13 +57,16 @@ class Transport:
         self.load = self.control.transport_load(self)
         self.load = 24
 
+    def load_for_hub(self):
+        pass
+
     def is_docked(self):
         return True
 
         #return self.control.is_transport_docked(self)
 
     def is_full(self):
-        #self.load = self.control.transport_load()
+        self.load = self.control.transport_load()
         return self.load == self.capacity
 
     def is_empty(self):
