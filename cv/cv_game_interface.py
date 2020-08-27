@@ -8,6 +8,8 @@ import re
 
 from game.config import TRADE_STATIONS, PLANETS
 
+import cv2
+import copy
 from matplotlib import pyplot as plt
 import _pickle as pickle
 
@@ -81,7 +83,37 @@ class CVGameInterface:
         return planets
 
     def planet_cargos(self):
-        pass
+        if not self.cargolist_box:
+            self.__find_cargolist_box()
+        print(self.cargolist_box)
+
+        screen = ScreenScanner.grab_screen()
+        startX, startY, endX, endY = self.cargolist_box
+
+        cargobox = copy.copy(screen[startX:endX, startY:endY])
+        textboxes = self.textreader.get_text_boxes(cargobox)
+        self.textreader.draw_result()
+        cargoboxes = []
+
+        output = copy.copy(screen)
+
+        for coords, text in textboxes:
+            if text in PLANETS or text in TRADE_STATIONS:
+                x1, y1, x2, y2 = coords
+                x1 += startY
+                x2 += startY
+                y1 += startX
+                y2 += startX
+                cargoboxes.append((text, (x1, y1, x2, y2)))
+                cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(output, text, (x1, y1 - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2)
+
+        # DEBUG SHOW
+        # plt.figure(figsize=(24, 24))
+        # plt.imshow(output)
+        # plt.show()
+
+        return cargoboxes
 
     def is_transport_docked(self, transport):
         clicker.leftclick(transport.button)
@@ -239,7 +271,7 @@ class CVGameInterface:
                 startX, startY, endX, endY = coords
                 self.planet_capacity_box = (startX - 5, startY - 5, endX + 5, endY + 5)
 
-    def find_cargolist_box(self):
+    def __find_cargolist_box(self):
         objects = self.__get_objects()
         # set bottom box border on load button
         X1, Y1, X2, Y2 = 1200, 1900, 0, 0
@@ -250,7 +282,6 @@ class CVGameInterface:
         #TODO - fix double snapshot
         screen = ScreenScanner.grab_screen()
         textboxes = self.textreader.get_text_boxes(screen)
-        self.textreader.draw_result()
 
         # hint - 6 scrolls to the same position
 
@@ -266,7 +297,7 @@ class CVGameInterface:
 
         ##DEBUG###
 
-        plt.imshow(screen[X1:X2, Y1:Y2])
-        plt.show()
+        # plt.imshow(screen[X1:X2, Y1:Y2])
+        # plt.show()
 
-        self.cargolist_box = [X1, X2, Y1, Y2]
+        self.cargolist_box = [X1, Y1, X2, Y2]

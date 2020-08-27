@@ -17,14 +17,15 @@ class ScreenScanner:
         self.yolo = Create_Yolov3(input_size=SIZE, CLASSES=CLASSES)  # from config
         self.yolo.load_weights(WEIGHTS)
 
-    def get_screen_boxes(self):
+    def get_screen_boxes(self, DRAW=False):
         screen = self.grab_screen()
         boxes = self.__scan_image(self.yolo, screen, SIZE, iou_threshold=IOU_THREASHOLD, score_threshold=SCORE_THRESHOLD)
 
-        image = draw_bbox(screen, boxes, CLASSES=CLASSES)
-        plt.figure(figsize=(30, 30))
-        plt.imshow(image)
-        plt.show()
+        if DRAW:
+            image = draw_bbox(screen, boxes, CLASSES=CLASSES)
+            plt.figure(figsize=(30, 30))
+            plt.imshow(image)
+            plt.show()
 
         return boxes
 

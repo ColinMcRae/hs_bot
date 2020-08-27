@@ -12,9 +12,11 @@ class TextReader():
         pytesseract.pytesseract.tesseract_cmd = t_path
         self.image = ''
         self.textboxes = []
-        self.config = ('-l eng --oem 3 --psm 1 --tessdata-dir "models/"')
+        # self.config = ('-l eng --oem 3 --psm 1 --tessdata-dir "models/"')
+        self.config = ('-l eng --oem 3 --psm 3 --tessdata-dir "models/"')
 
     def get_text_boxes(self, image, INVERT=True):
+        self.textboxes = []
         # invert colors of game screen for better text recognition
         self.image = image
         if INVERT:
