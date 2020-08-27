@@ -152,6 +152,7 @@ class CVGameInterface:
                 point = utils.get_coords([Y1, X1, Y2, X2])
 
                 clicker.scroll(point)
+                continue
                 scr += 1
             else:
                 scr = 0
