@@ -135,7 +135,7 @@ class CVGameInterface:
         return int(load)
 
     def load_for_hub(self, transport, destinations):
-        iters = 20
+        iters = 50
         scr = 0
         prev_boxes = []
         while True:
@@ -152,6 +152,7 @@ class CVGameInterface:
                 point = utils.get_coords([Y1, X1, Y2, X2])
 
                 clicker.scroll(point)
+                time.sleep(0.1)
                 continue
                 scr += 1
             else:
