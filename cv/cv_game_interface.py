@@ -153,8 +153,8 @@ class CVGameInterface:
 
                 clicker.scroll(point)
                 time.sleep(0.1)
-                continue
                 scr += 1
+                continue
             else:
                 scr = 0
 
