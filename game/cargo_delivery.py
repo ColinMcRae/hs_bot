@@ -63,10 +63,66 @@ class CargoDelivery:
                 if transport.status != 4:
                     exit_condition = True
 
-
     def sort_cargo(self):
-        hub = self.__find_hub()
-        print(hub)
+        exit_condition = True
+        it = 300
+
+        while exit_condition:
+            it -= 1
+            if it < 0:
+                break
+
+            for transport in self.transports:
+                if transport.status == 0:
+                    hub = self.__find_hub()
+
+                    if not hub:
+                        continue
+
+                    transport.hub = hub
+
+                    dest = self.__find_unvisited_planet(transport)
+                    if not dest:
+                        transport.finish()
+                        continue
+
+                    transport.destination = dest
+                    transport.send_to_dest(dest)
+
+                if transport.status in [1, 2]:
+                    if not transport.is_docked():
+                        continue
+
+                    transport.load_for_hub()
+                    if transport.is_full():
+                        transport.send_to_hub()
+
+                    else:
+                        transport.visited.append(transport.destination.name)
+                        dest = self.__find_unvisited_planet(transport)
+                        if not dest:
+                            transport.send_to_hub()
+                        else:
+                            transport.destination = dest
+                            transport.send_to_dest(dest)
+
+                if transport.status == 3:
+                    dest = self.__find_unvisited_planet(transport)
+                    if not dest:
+                        transport.send_to_hub()
+                    else:
+                        transport.destination = dest
+                        transport.send_to_dest(dest)
+
+                if transport.status == 8:
+                    transport.unload()
+                    if transport.is_empty:
+                        transport.finish()
+
+            exit_condition = False
+            for transport in self.transports:
+                if transport.status not in [0, 4]:
+                    exit_condition = True
 
     def __find_free_transport(self):
         for tr in self.transports:
@@ -107,6 +163,26 @@ class CargoDelivery:
                 pl = planet
                 min_dist = distance_to_planet
         return pl
+
+    def __find_unvisited_planet(self, transport):
+        min_dist = 2000
+        pl = None
+        for planet in self.planets:
+            if planet.name in transport.visited and planet.status in [1, 2]:
+                continue
+
+            distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
+            if distance_to_planet > min_dist:
+                continue
+
+            pl = planet
+            min_dist = distance_to_planet
+        return pl
+
+    def __find_planet_by_name(self, name):
+        for planet in self.planets:
+            if planet.name == name:
+                return planet
 
     #TODO - think about name
     def __transport_redirect(self, transport):

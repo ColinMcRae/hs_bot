@@ -39,6 +39,10 @@ class Transport:
         #DEBUG
         print(self.__hash__(), 'sending to', dest.name)
 
+    def send_to_hub(self):
+        self.destination = self.hub
+        self.status = 8
+
     def unload(self):
         self.load = 0
 
@@ -72,3 +76,6 @@ class Transport:
     def is_empty(self):
         # self.load = self.control.transport_load()
         return self.load == 0
+
+    def finish(self):
+        self.status = 4
