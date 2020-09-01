@@ -4,3 +4,4 @@ __pycache__/
 models/*.*
 !models/*.txt
 *ipynb
+screens/
