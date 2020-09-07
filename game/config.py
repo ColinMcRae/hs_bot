@@ -4,11 +4,18 @@ PLANETS = ['Tsu', 'Brenwyn', 'Lulinda', 'Aktaj', 'Stian', 'Ludder', 'Holographis
 ARTIFACT_STORAGE = ['Ludder']
 TRADE_STATIONS = ['Marduk', 'Grabak', 'Khors']
 
+# HUBS = {
+#     'Galatea': ['Tsu', 'Stian', 'Vilmmie', 'Aktaj'],
+#     'Stian': ['Liozy', 'Stur'],
+#     'Liozy': ['Ludder', 'Holographis', 'Galatea'],
+#
+#     'Capaneus': ['STATION', 'Fruno', 'Rotha'],
+#     'Fruno': ['Brenwyn', 'Hisa', 'Capaneus', 'Lulinda'],
+# }
 HUBS = {
-    'Galatea': ['Tsu', 'Stian', 'Vilmmie', 'Aktaj'],
-    'Stian': ['Liozy', 'Stur'],
+    'Galatea': ['Tsu', 'Stian', 'Vilmmie', 'Aktaj', 'Liozy', 'Stur'],
     'Liozy': ['Ludder', 'Holographis', 'Galatea'],
 
-    'Capaneus': ['STATION', 'Fruno', 'Rotha'],
+    'Capaneus': ['STATION', 'Fruno', 'Rotha', 'Brenwyn', 'Hisa', 'Capaneus', 'Lulinda'],
     'Fruno': ['Brenwyn', 'Hisa', 'Capaneus'],
 }

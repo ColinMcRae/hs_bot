@@ -1,4 +1,5 @@
 from controller import clicker
+from game.config import HUBS
 
 class Transport:
     """
@@ -33,8 +34,8 @@ class Transport:
     def send_to_dest(self, dest):
         self.status = 1
         self.destination = dest
-        # clicker.leftclick(self.button)
-        # clicker.rightclick(dest.coords)
+        clicker.leftclick(self.button)
+        clicker.rightclick(dest.coords)
 
         #DEBUG
         print(self.__hash__(), 'sending to', dest.name)
@@ -42,6 +43,8 @@ class Transport:
     def send_to_hub(self):
         self.destination = self.hub
         self.status = 8
+        clicker.leftclick(self.button)
+        clicker.rightclick(self.hub.coords)
 
     def unload(self):
         self.load = 0
@@ -62,12 +65,12 @@ class Transport:
         self.load = 24
 
     def load_for_hub(self):
-        pass
+        self.control.load_for_hub(self, HUBS[self.hub.name])
 
     def is_docked(self):
-        return True
+        # return True
 
-        #return self.control.is_transport_docked(self)
+        return self.control.is_transport_docked(self)
 
     def is_full(self):
         self.load = self.control.transport_load()

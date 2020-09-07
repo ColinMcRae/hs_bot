@@ -171,12 +171,15 @@ class CargoDelivery:
             if planet.name in transport.visited and planet.status in [1, 2]:
                 continue
 
-            distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
-            if distance_to_planet > min_dist:
-                continue
+            if transport.destination:
+                distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
+                if distance_to_planet > min_dist:
+                    continue
+                min_dist = distance_to_planet
+                pl = planet
+            else:
+                return planet
 
-            pl = planet
-            min_dist = distance_to_planet
         return pl
 
     def __find_planet_by_name(self, name):

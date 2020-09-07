@@ -76,8 +76,8 @@ class CVGameInterface:
             planets.append({'name': name, 'coords': planet})
 
         #############
-        with open('planets.pkl', 'wb') as file:
-            pickle.dump(planets, file)
+        # with open('planets.pkl', 'wb') as file:
+        #     pickle.dump(planets, file)
         #############
 
         return planets
@@ -143,6 +143,7 @@ class CVGameInterface:
             if iters < 0:
                 break
             cargos = self.planet_cargos()
+            cargos.reverse()
 
             if cargos == prev_boxes:
                 if scr > 0:
@@ -159,13 +160,14 @@ class CVGameInterface:
                 scr = 0
 
             prev_boxes = cargos
+
             for coords, cargo in cargos:
                 if cargo in destinations:
                     print('loading to', cargo)
                     point = utils.get_coords(coords)
                     point[0] -= 50
                     clicker.leftclick(point)
-                    break
+                    # break
             if transport.is_full():
                 break
         print('loading finished')
