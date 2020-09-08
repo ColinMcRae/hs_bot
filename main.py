@@ -1,16 +1,28 @@
-# Main Bot script
+import cv
+from game.objects import SolarSystem
+from game.cargo_delivery import CargoDelivery
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+#debug
+import libs.utils as utils
+from game.config import TRADE_STATIONS, PLANETS
+#debug
+
+import time
+
+import pyautogui
+import numpy as np
+from matplotlib import pyplot as plt
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def sort():
+    interface = cv.CVGameInterface()
+
+    sol = SolarSystem(interface)
+    # sol.debug()
+    delivery = CargoDelivery(sol)
+    delivery.sort_cargo()
 
 
-# Press the green button in the gutter to run the script.
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    sort()

@@ -1,10 +1,11 @@
 from game.config import WARP_PLANETS, HUBS, ARTIFACT_STORAGE
 import libs.utils as utils
+import time
 
 class CargoDelivery:
     def __init__(self, solarsystem):
         self.sol = solarsystem
-        self.transports = solarsystem.transports
+        self.transports = solarsystem.transports[:2]
         self.planets = solarsystem.planets
         self.tradestations = solarsystem.tradestations
 
@@ -44,7 +45,7 @@ class CargoDelivery:
                         transport.destination.status = 2
                     else:
                         transport.unload()
-                        transport.destination.status = 3 #TODO remove
+                        # transport.destination.status = 3 #TODO remove
                         self.__transport_redirect(transport)
 
                 if transport.status == 3:
@@ -73,6 +74,9 @@ class CargoDelivery:
                 break
 
             for transport in self.transports:
+                transport.select()
+                time.sleep(0.3)
+
                 if transport.status == 0:
                     hub = self.__find_hub()
 
@@ -80,41 +84,48 @@ class CargoDelivery:
                         continue
 
                     transport.hub = hub
+                    print('transport', transport.__hash__(), 'has hub', hub.name)
 
                     dest = self.__find_unvisited_planet(transport)
                     if not dest:
                         transport.finish()
                         continue
 
-                    transport.destination = dest
                     transport.send_to_dest(dest)
 
                 if transport.status in [1, 2]:
                     if not transport.is_docked():
                         continue
 
+                    transport.status = 3
                     transport.load_for_hub()
+
+                    print('checking transport')
                     if transport.is_full():
+                        print('full - sending to hub')
                         transport.send_to_hub()
 
                     else:
+                        print('not full - find next planet')
                         transport.visited.append(transport.destination.name)
                         dest = self.__find_unvisited_planet(transport)
                         if not dest:
                             transport.send_to_hub()
                         else:
-                            transport.destination = dest
                             transport.send_to_dest(dest)
 
                 if transport.status == 3:
+                    print('status 3. We should not be here')
                     dest = self.__find_unvisited_planet(transport)
                     if not dest:
                         transport.send_to_hub()
                     else:
-                        transport.destination = dest
                         transport.send_to_dest(dest)
 
                 if transport.status == 8:
+                    if not transport.is_docked():
+                        continue
+
                     transport.unload()
                     if transport.is_empty:
                         transport.finish()
@@ -149,6 +160,8 @@ class CargoDelivery:
             if planet.name in hubs and planet.status == 0:
                 hub = planet
                 planet.status = 3
+                break
+
         return hub
 
     def __find_planet_for_unload(self, transport):
@@ -168,7 +181,7 @@ class CargoDelivery:
         min_dist = 2000
         pl = None
         for planet in self.planets:
-            if planet.name in transport.visited and planet.status in [1, 2]:
+            if planet.name in transport.visited or planet.status in [1, 2]:
                 continue
 
             if transport.destination:
@@ -179,7 +192,10 @@ class CargoDelivery:
                 pl = planet
             else:
                 return planet
-
+        if planet:
+            print('planet found', pl.name)
+        else:
+            print('no planets left')
         return pl
 
     def __find_planet_by_name(self, name):

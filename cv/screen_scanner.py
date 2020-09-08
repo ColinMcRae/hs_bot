@@ -19,8 +19,8 @@ class ScreenScanner:
 
     def get_screen_boxes(self, DRAW=False, image=None):
 
-        # screen = self.grab_screen()
-        screen = image
+        screen = self.grab_screen()
+        # screen = image
         boxes = self.__scan_image(self.yolo, screen, SIZE, iou_threshold=IOU_THREASHOLD, score_threshold=SCORE_THRESHOLD)
 
         if DRAW:

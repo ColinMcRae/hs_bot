@@ -20,10 +20,15 @@ class TextReader():
         self.textboxes = []
         self.image = image
 
+        # pyplot.imshow(image, 'gray')
         # resize image for better text recognition
         scale = 2
         shape = np.shape(image)
-        resized_image = cv2.resize(image, (shape[1] * 2, shape[0] * 2))
+        try:
+            resized_image = cv2.resize(image, (shape[1] * 2, shape[0] * 2))
+        except Exception as e:
+            print(str(e))
+            return []
 
         # thresholding image
         image = ~resized_image

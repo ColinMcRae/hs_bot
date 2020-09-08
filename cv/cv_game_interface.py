@@ -38,10 +38,10 @@ class CVGameInterface:
         pass
 
     def init_objects(self):
-        with open('objects.pkl', 'rb') as file:
-            objects = pickle.load(file)
-
-        return objects
+        # with open('objects.pkl', 'rb') as file:
+        #     objects = pickle.load(file)
+        #
+        # return objects
 
         objects = self.__get_objects()
 
@@ -61,9 +61,9 @@ class CVGameInterface:
         return objects
 
     def get_planets(self, coords):
-        with open('planets.pkl', 'rb') as file:
-            planets = pickle.load(file)
-        return planets
+        # with open('planets.pkl', 'rb') as file:
+        #     planets = pickle.load(file)
+        # return planets
 
         #click every planet, and find it's name
         print('getting planets')
@@ -84,38 +84,43 @@ class CVGameInterface:
 
     def planet_cargos(self):
         if not self.cargolist_box:
+            time.sleep(0.3)
             self.__find_cargolist_box()
 
-        screen = ScreenScanner.grab_screen()
-        startX, startY, endX, endY = self.cargolist_box
-
-        cargobox = copy.copy(screen[startX:endX, startY:endY])
-        textboxes = self.textreader.get_text_boxes(cargobox)
-        # self.textreader.draw_result()
         cargoboxes = []
+        if self.cargolist_box:
 
-        output = copy.copy(screen)
+            screen = ScreenScanner.grab_screen()
+            # plt.imshow(screen, 'gray')
 
-        for coords, text in textboxes:
-            if text in PLANETS or text in TRADE_STATIONS:
-                x1, y1, x2, y2 = coords
-                x1 += startY
-                x2 += startY
-                y1 += startX
-                y2 += startX
-                cargoboxes.append(((x1, y1, x2, y2), text))
-                # cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                # cv2.putText(output, text, (x1, y1 - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2)
+            startX, startY, endX, endY = self.cargolist_box
 
-        # DEBUG SHOW
-        # plt.figure(figsize=(24, 24))
-        # plt.imshow(output)
-        # plt.show()
+            cargobox = copy.copy(screen[startX:endX, startY:endY])
+            textboxes = self.textreader.get_text_boxes(cargobox)
+            # self.textreader.draw_result()
+            cargoboxes = []
+
+            output = copy.copy(screen)
+
+            for coords, text in textboxes:
+                if text in PLANETS or text in TRADE_STATIONS:
+                    x1, y1, x2, y2 = coords
+                    x1 += startY
+                    x2 += startY
+                    y1 += startX
+                    y2 += startX
+                    cargoboxes.append(((x1, y1, x2, y2), text))
+                    # cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    # cv2.putText(output, text, (x1, y1 - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2)
+
+            # DEBUG SHOW
+            # plt.figure(figsize=(24, 24))
+            # plt.imshow(output)
+            # plt.show()
 
         return cargoboxes
 
-    def is_transport_docked(self, transport):
-        clicker.leftclick(transport.button)
+    def is_transport_docked(self):
         time.sleep(0.2)
         objects = self.__get_objects()
 
@@ -125,16 +130,27 @@ class CVGameInterface:
         if not self.transport_capacity_box:
             self.__find_capacity_box()
 
-        screen = ScreenScanner.grab_screen()
+        if self.transport_capacity_box:
+            screen = ScreenScanner.grab_screen()
 
-        startX, startY, endX, endY = self.transport_capacity_box
-        loadbox = screen[startY:endY, startX:endX]
+            startX, startY, endX, endY = self.transport_capacity_box
+            loadbox = screen[startY:endY, startX:endX]
 
-        load = self.textreader.read_text(loadbox)
-        load = ''.join(re.findall('\d', load.split('/')[0]))
-        return int(load)
+            load = self.textreader.read_text(loadbox)
+            load = ''.join(re.findall('\d', load.split('/')[0]))
+            print(load)
+            try:
+                load = int(load)
+            except:
+                print('faild to read load. Value - ', load)
+                plt.imshow(loadbox)
+                load = 0
+
+            return load
 
     def load_for_hub(self, transport, destinations):
+        clicker.leftclick(self.loadplanet)
+        time.sleep(0.3)
         iters = 50
         scr = 0
         prev_boxes = []
@@ -168,14 +184,18 @@ class CVGameInterface:
                     point[0] -= 50
                     clicker.leftclick(point)
                     # break
-            if transport.is_full():
-                break
+            # if transport.is_full():
+            #     break
         print('loading finished')
+        clicker.leftclick(self.loadplanet)
+        time.sleep(0.3)
 
-    # TODO
-    def send_transport(self, transport, dest):
-        clicker.leftclick(transport.button)
-        clicker.rightclick(dest.coords)
+    def unload_transport(self):
+        if not self.unloadall:
+            self.__find_cargolist_box()
+
+        if self.unloadall:
+            clicker.leftclick(self.unloadall)
 
     def __get_planet_name(self, screen):
         if not self.planet_name_box:
@@ -224,7 +244,7 @@ class CVGameInterface:
                 if int(box[5]) == idx:
                     result[class_name].append(utils.get_coords(box))
 
-        print(result)
+        # print(result)
         return result
 
     def __find_planet_namebox(self, objects):
@@ -319,6 +339,8 @@ class CVGameInterface:
         #TODO - fix double snapshot
         screen = ScreenScanner.grab_screen()
         textboxes = self.textreader.get_text_boxes(screen)
+
+        # self.textreader.draw_result()
 
         # hint - 6 scrolls to the same position
 
