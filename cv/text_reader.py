@@ -45,9 +45,14 @@ class TextReader():
 
         return self.textboxes
 
-    def read_text(self, image):
-        # TODO - read with image_to_data
-        config = ('-l eng --oem 3 --psm 1 --tessdata-dir "models/"')
+    def read_text(image):
+        shape = np.shape(image)
+        image = cv2.resize(image, (shape[1] * 2, shape[0] * 2))
+
+        image = ~image
+        _, image = cv2.threshold(image, 127, 255, cv2.THRESH_TOZERO)
+
+        config = ('-l eng --oem 3 --psm 11 --tessdata-dir "models/"')
         text = pytesseract.image_to_string(image, config=config)
         return text
 
