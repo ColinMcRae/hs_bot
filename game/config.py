@@ -1,7 +1,7 @@
 WARP_PLANETS = ['Tsu', 'Aktaj', 'Ludder', 'Holographis', 'Vilmmie', 'Galatea', 'Liozy', 'Stur', 'Stian']
 PLANETS = ['Tsu', 'Brenwyn', 'Lulinda', 'Aktaj', 'Stian', 'Ludder', 'Holographis', 'Vilmmie',
            'Hisa', 'Galatea', 'Capaneus', 'Liozy', 'Fruno', 'Stur', 'Rotha', 'STATION']
-ARTIFACT_STORAGE = ['Ludder']
+ARTIFACT_STORAGE = ['Ludder', 'Stian']
 TRADE_STATIONS = ['Marduk', 'Grabak', 'Khors']
 
 HUBS = {

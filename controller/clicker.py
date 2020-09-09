@@ -13,6 +13,7 @@ def send(coords):
     pyautogui.typewrite('f2')
 
 def scroll(position):
+    pyautogui.moveTo(position)
     pyautogui.scroll(-5, x=position[0], y=position[1])
     pyautogui.scroll(-5, x=position[0], y=position[1])
     pyautogui.scroll(-5, x=position[0], y=position[1])

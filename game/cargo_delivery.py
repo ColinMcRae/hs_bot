@@ -1,11 +1,12 @@
 from game.config import WARP_PLANETS, HUBS, ARTIFACT_STORAGE
 import libs.utils as utils
 import time
+import random
 
 class CargoDelivery:
     def __init__(self, solarsystem):
         self.sol = solarsystem
-        self.transports = solarsystem.transports[:2]
+        self.transports = solarsystem.transports
         self.planets = solarsystem.planets
         self.tradestations = solarsystem.tradestations
 
@@ -73,6 +74,9 @@ class CargoDelivery:
             if it < 0:
                 break
 
+            # while utils.getIdleTime() < 3:
+            #     time.sleep(1)
+
             for transport in self.transports:
                 transport.select()
                 time.sleep(0.3)
@@ -86,7 +90,8 @@ class CargoDelivery:
                     transport.hub = hub
                     print('transport', transport.__hash__(), 'has hub', hub.name)
 
-                    dest = self.__find_unvisited_planet(transport)
+                    # dest = self.__find_unvisited_planet(transport)
+                    dest = self.__find_random_planet()
                     if not dest:
                         transport.finish()
                         continue
@@ -181,22 +186,30 @@ class CargoDelivery:
         min_dist = 2000
         pl = None
         for planet in self.planets:
-            if planet.name in transport.visited or planet.status in [1, 2]:
+            if planet.name in transport.visited or planet.status in [1, 2] or planet.name in ARTIFACT_STORAGE:
                 continue
 
-            if transport.destination:
-                distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
-                if distance_to_planet > min_dist:
-                    continue
-                min_dist = distance_to_planet
+            if not transport.destination:
                 pl = planet
-            else:
-                return planet
-        if planet:
+                break
+
+            distance_to_planet = utils.distance(transport.destination.coords, planet.coords)
+            if distance_to_planet > min_dist:
+                continue
+            min_dist = distance_to_planet
+            pl = planet
+
+        if pl:
             print('planet found', pl.name)
         else:
             print('no planets left')
         return pl
+
+    def __find_random_planet(self):
+        while True:
+            planet = random.choice(self.planets)
+            if planet.name not in ARTIFACT_STORAGE:
+                return planet
 
     def __find_planet_by_name(self, name):
         for planet in self.planets:

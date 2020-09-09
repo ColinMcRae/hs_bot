@@ -3,9 +3,8 @@ from cv.config import CLASSES
 from controller import clicker
 import time
 import libs.utils as utils
-import numpy as np
 import re
-
+import random
 from game.config import TRADE_STATIONS, PLANETS
 
 import cv2
@@ -73,7 +72,8 @@ class CVGameInterface:
             time.sleep(0.2)
             screen = self.screenscanner.grab_screen()
             name = self.__get_planet_name(screen)
-            planets.append({'name': name, 'coords': planet})
+            if name in PLANETS:
+                planets.append({'name': name, 'coords': planet})
 
         #############
         # with open('planets.pkl', 'wb') as file:
@@ -143,7 +143,9 @@ class CVGameInterface:
                 load = int(load)
             except:
                 print('faild to read load. Value - ', load)
-                plt.imshow(loadbox)
+                name = ''.join(random.choices("qwertyuiopasdfghjklzxcvbnm", k=7))
+                cv2.imwrite('failed_screens/' + name + '.jpg', loadbox)
+                # plt.imshow(loadbox)
                 load = 0
 
             return load
@@ -192,7 +194,7 @@ class CVGameInterface:
 
     def unload_transport(self):
         if not self.unloadall:
-            self.__find_cargolist_box()
+            self.__get_objects()
 
         if self.unloadall:
             clicker.leftclick(self.unloadall)
@@ -224,8 +226,8 @@ class CVGameInterface:
 
         #############
         #############
-        plt.imshow(namebox)
-        plt.show()
+        # plt.imshow(namebox)
+        # plt.show()
 
         ###############
         #########
@@ -323,7 +325,7 @@ class CVGameInterface:
         for coords, text in textboxes:
             if re.match("\(\d+/\d+\)", text):
                 startX, startY, endX, endY = coords
-                self.transport_capacity_box = (startX - 5, startY - 5, endX + 5, endY + 5)
+                self.transport_capacity_box = (startX - 5, startY - 5, endX + 20, endY + 5)
             if re.match("\d+/\d+", text):
                 startX, startY, endX, endY = coords
                 self.planet_capacity_box = (startX - 5, startY - 5, endX + 5, endY + 5)
